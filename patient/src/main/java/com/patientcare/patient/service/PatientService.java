@@ -13,6 +13,11 @@ import java.util.Optional;
 public class PatientService {
     private final PatientRepository patientRepository;
 
+    public List<Patient> getPatientsByDoctorId(Long doctorId) {
+        return patientRepository.findByDoctorId(doctorId);
+    }
+
+
     // Get all patients
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();

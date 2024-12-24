@@ -15,6 +15,7 @@
       <module>alert-notification</module>
     <module>eureka-server</module>
       <module>location-tracking</module>
+      <module>auth-service</module>
   </modules>
 
   <properties>

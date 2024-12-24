@@ -15,9 +15,16 @@ import java.util.Optional;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/patients")
+@CrossOrigin(origins = "http://localhost:3000")
 public class PatientController {
 
     private final PatientService patientService;
+
+    @GetMapping("/doctor/{doctorId}")
+    public List<Patient> getPatientsByDoctorId(@PathVariable Long doctorId) {
+        return patientService.getPatientsByDoctorId(doctorId);
+    }
+
 
     // Get all patients
     @GetMapping

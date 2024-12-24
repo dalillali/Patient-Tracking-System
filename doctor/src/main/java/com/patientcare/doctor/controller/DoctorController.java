@@ -17,11 +17,19 @@ import java.util.Optional;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/doctors")
+@CrossOrigin(origins = "http://localhost:3000")
 public class DoctorController {
 
     private final DoctorService doctorService;
     @Autowired
     private RestTemplate restTemplate;
+
+    @GetMapping("/{id}/patients")
+    public String getPatientsByDoctorId(@PathVariable Long id) {
+        String url = "http://patient/api/patients/doctor/" + id; // Appel du service Patient
+        return restTemplate.getForObject(url, String.class);
+    }
+
 
     @GetMapping("/call-patient")
     public String callPatientService() {

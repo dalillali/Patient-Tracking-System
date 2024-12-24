@@ -21,4 +21,6 @@ public class Doctor {
     private String specialty;
     private String email;
     private String phone;
+
+    private Long userId;
 }

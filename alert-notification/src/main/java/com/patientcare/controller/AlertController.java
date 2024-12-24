@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 public class AlertController {
 
     private final EmailNotificationService emailService;
+
     @Autowired
     private RestTemplate restTemplate;
 

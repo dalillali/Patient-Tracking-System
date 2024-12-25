@@ -138,4 +138,5 @@ Content-Type: application/json
   "trackerId": 1
 }
 ```
+## **Eureka Instances**
 ![Eureka Instances](eureka.png)

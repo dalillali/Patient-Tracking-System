@@ -30,6 +30,31 @@ public class DoctorController {
         return restTemplate.getForObject(url, String.class);
     }
 
+    @GetMapping("/user/{userId}/doctor")
+    public ResponseEntity<Doctor> getDoctorInfoByUserId(@PathVariable Long userId) {
+        String authServiceUrl = "http://auth-service/api/users/" + userId;
+
+        try {
+            ResponseEntity<String> userResponse = restTemplate.getForEntity(authServiceUrl, String.class);
+
+            if (userResponse.getStatusCode() == HttpStatus.OK) {
+                Optional<Doctor> doctor = doctorService.getDoctorByUserId(userId);
+
+                if (doctor.isPresent()) {
+                    return new ResponseEntity<>(doctor.get(), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+    }
+
+
+
 
     @GetMapping("/call-patient")
     public String callPatientService() {

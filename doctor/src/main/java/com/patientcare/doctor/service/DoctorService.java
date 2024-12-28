@@ -14,6 +14,10 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
 
+    public Optional<Doctor> getDoctorByUserId(Long userId) {
+        return doctorRepository.findByUserId(userId); // Implémentation du repository
+    }
+
     // Get all doctors
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAll();

@@ -1,12 +1,14 @@
-import requests
 from flask import Flask, request, jsonify
 from geopy.distance import geodesic
 from datetime import datetime
+from flask_cors import CORS
+import requests
 
 app = Flask(__name__)
+CORS(app, origins="http://localhost:3000")
 
 # Define the center of the perimeter and its radius (in kilometers)
-PERIMETER_CENTER = (31.669206, -8.025967)  # Replace with your coordinates
+PERIMETER_CENTER = (31.653515, -8.021168)  # Replace with your coordinates
 PERIMETER_RADIUS_KM = 0.002  # Radius in kilometers (2 meters)
 
 # Inactivity threshold (in seconds) and movement tolerance (in kilometers)
@@ -14,8 +16,7 @@ INACTIVITY_THRESHOLD_SEC = 20  # Time threshold for inactivity
 MOVEMENT_TOLERANCE_KM = 0.002  # 2 meters from last point
 
 # Track the last known location, timestamp, inactivity counter, and last email states
-last_location = None
-last_timestamp = None
+last_locations = {}  # Track the last known location for each patient
 last_perimeter_status = None  # "inside" or "outside"
 last_inactivity_status = None  # "active" or "inactive"
 is_first_request = True  # Tracks whether this is the first request
@@ -87,7 +88,7 @@ def analyze():
     """
     Endpoint to analyze incoming GPS data for perimeter condition and inactivity.
     """
-    global last_location, last_timestamp, inactivity_counter, last_perimeter_status, last_inactivity_status, is_first_request
+    global last_locations, last_perimeter_status, last_inactivity_status, is_first_request, inactivity_counter
 
     data = request.json
     latitude = data.get("latitude")
@@ -174,7 +175,11 @@ def analyze():
         last_perimeter_status = "inside" if is_inside_perimeter else "outside"
 
     # Inactivity Check
-    if last_location is not None:
+    if tracker_id in last_locations:
+        previous_data = last_locations[tracker_id]
+        last_location = previous_data['location']
+        last_timestamp = previous_data['timestamp']
+
         distance_from_last = geodesic(patient_location, last_location).km
         time_difference = (current_time - last_timestamp).total_seconds()
 
@@ -204,20 +209,6 @@ def analyze():
             # Reset inactivity if movement detected
             print("Movement Status : MOVING (distance={:.4f} km)".format(distance_from_last))
             print("Inactivity Time : RESET to 0")
-            
-            # Reset inactivity status if patient moves
-            if last_inactivity_status == "inactive":
-                subject = f"Patient {patient['firstName']} Became Active Again"
-                body = (
-                    f"Patient {patient['firstName']} {patient['lastName']} has resumed activity after being inactive.\n\n"
-                    f"Location: Latitude={latitude}, Longitude={longitude}\n"
-                    f"Time: {current_time}\n\n"
-                    f"Patient Details:\n"
-                    f"  - Age: {patient['age']}\n"
-                    f"  - Address: {patient['address']}\n\n"
-                    f"Thank you for your attention."
-                )
-                send_email_alert(doctor_email, subject, body)
             inactivity_counter = 0
             last_inactivity_status = "active"  # Update status to "active"
     else:
@@ -228,9 +219,10 @@ def analyze():
 
     print("==================================================\n")
 
-    # Update last location and timestamp
-    last_location = patient_location
-    last_timestamp = current_time
+    last_locations[tracker_id] = {
+        "location": patient_location,
+        "timestamp": current_time
+    }
 
     # Return response
     response = {
@@ -240,6 +232,28 @@ def analyze():
     }
     return jsonify(response), 200
 
+
+@app.route('/last_location', methods=['GET'])
+def get_last_location():
+    """
+    Endpoint to retrieve the last known location of a patient.
+    """
+    global last_locations
+
+    patient_id = request.args.get('patientId')
+
+    if not patient_id:
+        return jsonify({"error": "Patient ID is required"}), 400
+
+    if patient_id not in last_locations:
+        return jsonify({"error": "No location data available for this patient"}), 404
+
+    location_data = last_locations[patient_id]
+    return jsonify({
+        "latitude": location_data["location"][0],
+        "longitude": location_data["location"][1],
+        "timestamp": location_data["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+    }), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

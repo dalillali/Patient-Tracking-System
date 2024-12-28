@@ -1,0 +1,51 @@
+.page-containerr {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 20%;
+}
+
+.mainn-content {
+  width: 80%; 
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.health-bag-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #007BFF, #0056b3);
+  border-radius: 10px;
+  color: white;
+  padding: 20px;
+  margin: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.banner-content {
+  flex: 1;
+}
+
+.banner-image {
+  flex: 1;
+  text-align: right;
+}
+
+.banner-image img {
+  max-width: 50%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.table-container {
+  margin-top: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.table-container table {
+  width: 100%;
+}

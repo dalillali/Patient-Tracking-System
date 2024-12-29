@@ -140,3 +140,6 @@ Content-Type: application/json
 ```
 ## **Eureka Instances**
 ![Eureka Instances](eureka.png)
+
+## **Video Demonstration**
+https://github.com/user-attachments/assets/94eb15de-c7f7-40f7-b5d5-181de035b594
